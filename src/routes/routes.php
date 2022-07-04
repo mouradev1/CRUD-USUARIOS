@@ -7,11 +7,29 @@ use Slim\Factory\AppFactory;
 require '../config/database.php';
 $app = AppFactory::create();
 
+$app->get('/', function (Request $request, Response $response) {
+    $data = [
+        "title" => "Crud em slim php",
+        "routes" => [
+            "GET" => [
+                "/usuarios" => "Lista todos os Usuarios",
+                "/usuario/{id}" => "Lista um usuario especifico"
+            ],
+            "POST" => [
+                "/usuarios" => "Insere um novo usuario registro"
+            ]
+        ]
+    ];
+    $response->getBody()->write(json_encode($data));
+    return $response;
+});
+
+
 $app->get('/usuarios', function (Request $request, Response $response, $args): Response {
     try {
         $db = new Db();
         $conn = $db->connect();
-        $sql = 'SELECT name,usuario FROM usuarios';
+        $sql = 'SELECT id, name,usuario FROM usuarios';
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -22,7 +40,6 @@ $app->get('/usuarios', function (Request $request, Response $response, $args): R
         return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
     }
 });
-
 
 $app->post('/usuarios', function (Request $request, Response $response, $args): Response {
     try {
@@ -45,12 +62,12 @@ $app->post('/usuarios', function (Request $request, Response $response, $args): 
     }
 });
 
-$app->get('/user/{id}', function (Request $request, Response $response, $args): Response {
+$app->get('/user[/{id:.*}]', function (Request $request, Response $response, $args): Response {
     try {
         $id = $args['id'];
         $db = new Db();
         $conn = $db->connect();
-        $sql = 'SELECT name,usuario FROM usuarios WHERE id = :id';
+        $sql = 'SELECT id,name,usuario FROM usuarios WHERE id = :id';
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
