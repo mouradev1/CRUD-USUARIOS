@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  php:
+    container_name: slim
+    build:
+      context: ./docker/php
+    ports:
+      - '80:80'
+    volumes:
+      - ./src:/var/www/app
+
+    command: php -S 0.0.0.0:80 -t public/

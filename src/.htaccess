@@ -1,0 +1,11 @@
+RewriteEngine on
+RewriteBase /servidorapi/public/
+RewriteRule ^$ public/ [L]
+RewriteRule (.*) public/$1 [L]
+
+In the .htaccess file that is inside public:
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
