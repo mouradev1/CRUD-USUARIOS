@@ -44,3 +44,28 @@ $app->post('/usuarios', function (Request $request, Response $response, $args): 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
     }
 });
+
+$app->get('/user/{id}', function (Request $request, Response $response, $args): Response {
+    try {
+        $id = $args['id'];
+        $db = new Db();
+        $conn = $db->connect();
+        $sql = 'SELECT name,usuario FROM usuarios WHERE id = :id';
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user) {
+            $response->getBody()->write(json_encode($user));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } else {
+            $response->getBody()->write(json_encode([
+                'msg' => 'Usuario não encontrado!!'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+    } catch (\Throwable $th) {
+        $response->getBody()->write($th->getMessage());
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+    }
+});
